@@ -1,0 +1,60 @@
+ARRAY:
+======
+* An array is a data structure used to store elements of the same data type.
+* In Arrays, each element can be accessed directly by using it's index number.
+* The idea is to store multiple elements of the same type together.
+* This makes it's easier to calculate position of each element by adding an offset to a base value.
+
+Advantages:
+===========
+1. Code optimization (less code)
+2. Random access
+3. Easy to traverse data
+4. Easy to manipulate data
+5. Easy to sort data
+
+TYPES:
+=======
+1. Single Dimensional
+2. Multi Dimensional
+
+1. Single Dimensional
+======================
+* It is the simplest type of array that contains only one row for storing data.
+* It has single set of square bracket ("[]").
+# Declare an array
+int[] age;
+# Allocate memory for array
+age = new int[5];        a[0] | a[1] | a[2] | a[3] | a[4]
+
+
+2. Multi Dimensional
+=====================
+* The Array contains more than one row to store data in it.
+* Also known as rectangular array because it has the same length of each row.
+* It can 2D or 3D and many more.
+* Contains more than one comma (,) within single rectangular brackets ("[,,,]").
+* The storing and accessing the elements from the multi-dimensional array we need to use nested for loop.
+
+Example:
+==========
+int[][] arr = new int[3][3];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

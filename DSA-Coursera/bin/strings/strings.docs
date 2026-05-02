@@ -1,0 +1,40 @@
+STRINGS:
+=========
+* A String is an object that represents a sequence of characters.
+* It is used to store and manipulate text-based data.
+* String class is part of core library and provides several methods for working with it.
+* Strings are immutable in java, which means once a string object is created, it's value cannot be changed.
+* However, we can create new strings by performing various operations on existing strings.
+
+HOW TO CREATE STRING OBJECT IN JAVA:
+====================================
+1. By String Literal:
+* Java String literal is created by using double quotes.
+* Ex: String s = "HelloWorld";
+* For this literals the memory is allocated in String constant pool(SCP) which is in java stack area.
+
+2. By new keyword:
+* Java String is created by using new keyword.
+* Ex: String s = new String("Hello HariPrasad);
+* The strings created using the new keyword the memory is allocated in the heap area.
+
+TYPES:
+=====
+1. Immutable String (Can't be changed -- String class)
+2. Mutable String (Can be changed -- StringBuilder class)
+
+
+STRING BUFFER:
+==============
+* It's a class in java, it represents mutable sequence of characters.
+* We can change the content of the buffer without creating a new object.
+
+
+STRING BUILDER:
+===============
+* Java StringBuilder class is used to create mutable (modifiable) String. 
+* The Java StringBuilder class is same as StringBuffer class except that it is non-synchronized. 
+* It is available since JDK 1.5
+
+
+
