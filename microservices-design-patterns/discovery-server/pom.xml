@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.interview.microservices</groupId>
+        <artifactId>microservices-design-patterns</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>discovery-server</artifactId>
+    <name>Discovery Server</name>
+    <description>
+        Netflix Eureka Server for service registration and discovery.
+        All microservices register here so they can locate each other
+        without hard-coded URLs (Service Registry pattern).
+    </description>
+
+    <dependencies>
+        <!-- Eureka Server - provides the service registry dashboard
+             and REST API that clients use to register/discover services -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
+        </dependency>
+
+        <!-- Actuator - health checks, metrics, and management endpoints -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Security - basic auth to protect the Eureka dashboard and API -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,15 @@
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/entity/OrderItem.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/client/ProductWebClientService.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/entity/Order.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/client/ProductFeignClient.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/config/RestTemplateConfig.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/service/OrderService.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/repository/OrderItemRepository.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/event/OrderEventPublisher.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/config/WebClientConfig.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/client/ProductRestTemplateClient.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/controller/OrderController.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/client/InventoryFeignClient.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/repository/OrderRepository.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/OrderServiceApplication.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/order-service/src/main/java/com/interview/microservices/order/config/KafkaProducerConfig.java

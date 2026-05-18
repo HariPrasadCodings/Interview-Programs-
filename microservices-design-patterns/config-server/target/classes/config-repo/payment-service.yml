@@ -1,0 +1,62 @@
+# ================================================================
+# PAYMENT SERVICE - Configuration
+# ================================================================
+# Handles payment processing, demonstrates:
+#   - Saga pattern (participant in distributed transactions)
+#   - Compensating transactions (refund on saga failure)
+#   - Async Messaging (Kafka events for payment status)
+# ================================================================
+
+server:
+  port: 8083
+
+spring:
+  application:
+    name: payment-service
+
+  # H2 in-memory database (Database per Service pattern)
+  datasource:
+    url: jdbc:h2:mem:paymentdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Kafka configuration for payment events
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: payment-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+# --- Payment Service Properties ---
+payment:
+  # Simulated payment gateway configuration
+  gateway:
+    timeout: 5000
+    retry-attempts: 3
+  # Kafka topics for saga communication
+  topics:
+    payment-completed: payment-completed
+    payment-failed: payment-failed
+    payment-refunded: payment-refunded

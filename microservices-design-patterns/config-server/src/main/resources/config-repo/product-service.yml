@@ -1,0 +1,61 @@
+# ================================================================
+# PRODUCT SERVICE - Configuration
+# ================================================================
+# Manages the product catalog, demonstrates:
+#   - CQRS pattern (separate read/write models)
+#   - Database per Service pattern
+#   - Async Messaging (Kafka events on product changes)
+# ================================================================
+
+server:
+  port: 8082
+
+spring:
+  application:
+    name: product-service
+
+  # H2 in-memory database (Database per Service pattern)
+  # In a real CQRS setup, you might use separate databases for
+  # the command (write) and query (read) sides.
+  datasource:
+    url: jdbc:h2:mem:productdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Kafka configuration for publishing product events
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: product-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+# --- CQRS Configuration ---
+# Custom properties for the CQRS implementation
+cqrs:
+  # Enable separate read model synchronization
+  read-model:
+    sync-enabled: true
+    # Kafka topic for projecting write-side events to read-side
+    event-topic: product-events

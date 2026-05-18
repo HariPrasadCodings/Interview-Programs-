@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ================================================================
+         MICROSERVICES DESIGN PATTERNS - Parent POM
+         ================================================================
+         Multi-module Maven project demonstrating 9 microservices patterns
+         using an e-commerce domain (Order, Product, Payment, Inventory,
+         Notification). Built for Java interview preparation (4-5 years).
+
+         Patterns covered:
+           1. API Gateway           (api-gateway)
+           2. Service Registry      (discovery-server / Eureka)
+           3. Service Communication (order-service: Feign, RestTemplate, WebClient)
+           4. Database per Service  (MySQL, PostgreSQL, MongoDB, H2)
+           5. CQRS                  (product-service)
+           6. Saga                  (saga-orchestrator + choreography)
+           7. Cloud Config          (config-server)
+           8. Circuit Breaker       (order-service / Resilience4j)
+           9. Async Messaging       (Kafka across all services)
+         ================================================================ -->
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.5</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.interview.microservices</groupId>
+    <artifactId>microservices-design-patterns</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>Microservices Design Patterns</name>
+    <description>
+        Comprehensive multi-module project covering all major microservices
+        design patterns for Java interview preparation.
+    </description>
+
+    <!-- ======================== Modules ======================== -->
+    <modules>
+        <module>common-dto</module>
+        <module>config-server</module>
+        <module>discovery-server</module>
+        <module>api-gateway</module>
+        <module>auth-service</module>
+        <module>product-service</module>
+        <module>order-service</module>
+        <module>payment-service</module>
+        <module>inventory-service</module>
+        <module>notification-service</module>
+        <module>saga-orchestrator</module>
+    </modules>
+
+    <!-- ======================== Properties ======================== -->
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Spring Cloud BOM -->
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
+
+        <!-- JWT -->
+        <jjwt.version>0.12.5</jjwt.version>
+
+        <!-- Common DTO module version -->
+        <common-dto.version>1.0.0</common-dto.version>
+    </properties>
+
+    <!-- ======================== Dependency Management ======================== -->
+    <!-- Centralized version management - child modules inherit versions
+         without specifying them, following Maven best practice. -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring Cloud BOM - manages versions for Eureka, Gateway,
+                 OpenFeign, Config, CircuitBreaker, etc. -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Internal shared module -->
+            <dependency>
+                <groupId>com.interview.microservices</groupId>
+                <artifactId>common-dto</artifactId>
+                <version>${common-dto.version}</version>
+            </dependency>
+
+            <!-- JJWT - JSON Web Token library (split into api/impl/jackson) -->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-api</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-impl</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt-jackson</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- ======================== Common Dependencies ======================== -->
+    <!-- Dependencies shared by ALL child modules -->
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- ======================== Build Configuration ======================== -->
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <configuration>
+                        <excludes>
+                            <exclude>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                            </exclude>
+                        </excludes>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

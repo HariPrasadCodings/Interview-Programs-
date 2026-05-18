@@ -1,0 +1,76 @@
+# =============================================================================
+# Notification Service Configuration
+# =============================================================================
+# Event-driven microservice that consumes Kafka events from order-service and
+# payment-service, then creates and dispatches user notifications.
+
+server:
+  port: 8085
+
+spring:
+  application:
+    name: notification-service
+
+  # ======================== Database (H2 - Dev) ========================
+  # Each microservice owns its own database (Database-per-Service pattern).
+  # In production, this would be a dedicated PostgreSQL/MySQL schema.
+  datasource:
+    url: jdbc:h2:mem:notificationdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop              # Auto-create schema on startup (dev only)
+    show-sql: true                        # Log SQL for debugging
+
+  h2:
+    console:
+      enabled: true                       # H2 console at /h2-console
+      path: /h2-console
+
+  # ======================== Kafka Consumer ========================
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: notification-group
+      auto-offset-reset: earliest         # Read from beginning if no offset exists
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.interview.microservices.common.*"
+
+# =============================================================================
+# Eureka Client Configuration
+# =============================================================================
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:password@localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true               # Register with IP instead of hostname
+
+# =============================================================================
+# Actuator / Management Endpoints
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
+# =============================================================================
+# Logging
+# =============================================================================
+logging:
+  level:
+    com.interview.microservices.notification: DEBUG
+    org.apache.kafka: WARN
+    org.springframework.kafka: INFO

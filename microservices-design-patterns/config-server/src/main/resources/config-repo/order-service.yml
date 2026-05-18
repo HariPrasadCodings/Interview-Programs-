@@ -1,0 +1,84 @@
+# ================================================================
+# ORDER SERVICE - Configuration
+# ================================================================
+# Manages customer orders, demonstrates:
+#   - Service Communication (Feign, RestTemplate, WebClient)
+#   - Circuit Breaker (Resilience4j)
+#   - Saga pattern (orchestration participant)
+# ================================================================
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: order-service
+
+  # H2 in-memory database (Database per Service pattern)
+  datasource:
+    url: jdbc:h2:mem:orderdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Kafka producer configuration for async messaging
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: order-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+# --- Feign Client Configuration ---
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 5000
+        logger-level: FULL
+
+# --- Resilience4j Circuit Breaker (service-specific overrides) ---
+resilience4j:
+  circuitbreaker:
+    instances:
+      productService:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5000
+      paymentService:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5000
+      inventoryService:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5000
+  retry:
+    instances:
+      productService:
+        max-attempts: 3
+        wait-duration: 1000
+      paymentService:
+        max-attempts: 3
+        wait-duration: 1000

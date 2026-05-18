@@ -1,0 +1,92 @@
+# =============================================================================
+# Payment Service Configuration
+# =============================================================================
+# Demonstrates the DATABASE-PER-SERVICE pattern.
+#
+# In production, this service would use its own PostgreSQL database,
+# completely independent of the MySQL/MongoDB databases used by
+# order-service, product-service, and inventory-service. Each
+# microservice owns its data and schema, preventing tight coupling
+# at the database layer.
+#
+# For local development we use H2 (in-memory) to keep the setup simple.
+# =============================================================================
+
+server:
+  port: 8083
+
+spring:
+  application:
+    name: payment-service
+
+  # ---------------------------------------------------------------------------
+  # Datasource (Database-per-Service pattern)
+  # ---------------------------------------------------------------------------
+  # DEV:  H2 in-memory database (below)
+  # PROD: PostgreSQL - each service has its own dedicated database
+  #
+  #   spring.datasource.url=jdbc:postgresql://localhost:5432/payment_db
+  #   spring.datasource.driver-class-name=org.postgresql.Driver
+  #   spring.datasource.username=${POSTGRES_USER}
+  #   spring.datasource.password=${POSTGRES_PASSWORD}
+  # ---------------------------------------------------------------------------
+  datasource:
+    url: jdbc:h2:mem:paymentdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  # JPA / Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.H2Dialect
+
+  # H2 Console (dev only)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # ---------------------------------------------------------------------------
+  # Kafka
+  # ---------------------------------------------------------------------------
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+# =============================================================================
+# Eureka Client
+# =============================================================================
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:password@localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# =============================================================================
+# Actuator / Management Endpoints
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    health:
+      show-details: always
+
+# =============================================================================
+# Logging
+# =============================================================================
+logging:
+  level:
+    com.interview.microservices.payment: DEBUG
+    org.springframework.kafka: WARN

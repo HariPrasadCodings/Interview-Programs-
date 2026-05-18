@@ -1,0 +1,159 @@
+# ====================================================================
+# API GATEWAY - Application Configuration
+# ====================================================================
+# Central entry point for all client traffic. Routes requests to
+# downstream services using Eureka-based load balancing (lb://).
+# ====================================================================
+
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  # ======================== Cloud Gateway Routes ========================
+  # Each route:
+  #   - id         : unique identifier for the route
+  #   - uri        : lb://<service-name> resolves via Eureka
+  #   - predicates : match conditions (path-based routing)
+  #   - filters    : transformations applied to the request/response
+  cloud:
+    gateway:
+      # Enable discovery-based route locator (auto-create routes from
+      # Eureka-registered services). We define explicit routes below
+      # for fine-grained control, but this is useful for debugging.
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      routes:
+        # -------------------- Auth Service --------------------
+        # Public endpoint - AuthenticationFilter is NOT applied
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - RewritePath=/api/auth/(?<segment>.*), /auth/${segment}
+
+        # -------------------- Product Service --------------------
+        - id: product-service
+          uri: lb://product-service
+          predicates:
+            - Path=/api/products/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/products/(?<segment>.*), /products/${segment}
+            - name: CircuitBreaker
+              args:
+                name: productServiceCircuitBreaker
+                fallbackUri: forward:/fallback/products
+
+        # -------------------- Order Service --------------------
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/orders/(?<segment>.*), /orders/${segment}
+            - name: CircuitBreaker
+              args:
+                name: orderServiceCircuitBreaker
+                fallbackUri: forward:/fallback/orders
+
+        # -------------------- Payment Service --------------------
+        - id: payment-service
+          uri: lb://payment-service
+          predicates:
+            - Path=/api/payments/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/payments/(?<segment>.*), /payments/${segment}
+            - name: CircuitBreaker
+              args:
+                name: paymentServiceCircuitBreaker
+                fallbackUri: forward:/fallback/payments
+
+        # -------------------- Inventory Service --------------------
+        - id: inventory-service
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/inventory/**
+          filters:
+            - AuthenticationFilter
+            - RewritePath=/api/inventory/(?<segment>.*), /inventory/${segment}
+            - name: CircuitBreaker
+              args:
+                name: inventoryServiceCircuitBreaker
+                fallbackUri: forward:/fallback/inventory
+
+  # ======================== Redis (Rate Limiter) ========================
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+# ======================== Eureka Client ========================
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    # Fetch registry to resolve lb:// URIs
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+# ======================== JWT Configuration ========================
+# Base64-encoded HMAC secret shared with auth-service.
+# In production, source this from Spring Cloud Config or a vault.
+jwt:
+  secret: bXktc3VwZXItc2VjcmV0LWtleS1mb3ItbWljcm9zZXJ2aWNlcy1kZXNpZ24tcGF0dGVybnMtaW50ZXJ2aWV3LXByZXA=
+
+# ======================== Resilience4j Circuit Breaker ========================
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10000
+        permitted-number-of-calls-in-half-open-state: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+    instances:
+      productServiceCircuitBreaker:
+        base-config: default
+      orderServiceCircuitBreaker:
+        base-config: default
+      paymentServiceCircuitBreaker:
+        base-config: default
+      inventoryServiceCircuitBreaker:
+        base-config: default
+
+  # Timeout limiter (used with circuit breaker)
+  timelimiter:
+    configs:
+      default:
+        timeout-duration: 3s
+
+# ======================== Actuator ========================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,circuitbreakers,metrics
+  endpoint:
+    gateway:
+      enabled: true
+    health:
+      show-details: always
+
+# ======================== Logging ========================
+logging:
+  level:
+    root: INFO
+    com.interview.microservices.gateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG

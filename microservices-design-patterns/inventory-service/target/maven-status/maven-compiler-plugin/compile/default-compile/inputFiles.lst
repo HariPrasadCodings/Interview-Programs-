@@ -1,0 +1,8 @@
+/home/hkathi/Desktop/Interview/microservices-design-patterns/inventory-service/src/main/java/com/interview/microservices/inventory/entity/Inventory.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/inventory-service/src/main/java/com/interview/microservices/inventory/InventoryServiceApplication.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/inventory-service/src/main/java/com/interview/microservices/inventory/event/InventoryEventListener.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/inventory-service/src/main/java/com/interview/microservices/inventory/controller/InventoryController.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/inventory-service/src/main/java/com/interview/microservices/inventory/service/InventoryService.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/inventory-service/src/main/java/com/interview/microservices/inventory/config/KafkaConfig.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/inventory-service/src/main/java/com/interview/microservices/inventory/repository/InventoryRepository.java
+/home/hkathi/Desktop/Interview/microservices-design-patterns/inventory-service/src/main/java/com/interview/microservices/inventory/event/InventoryEventPublisher.java

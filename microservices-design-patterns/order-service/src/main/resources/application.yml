@@ -1,0 +1,129 @@
+# ================================================================
+# ORDER SERVICE - Application Configuration
+# ================================================================
+# Demonstrates: Service Communication, Circuit Breaker, Kafka Producer
+# Port: 8081
+# ================================================================
+
+server:
+  port: 8081
+
+spring:
+  application:
+    name: order-service
+
+  # ======================== H2 Database ========================
+  # Database-per-Service pattern: each microservice has its own DB.
+  # H2 is used here for simplicity; in production, use MySQL/PostgreSQL.
+  datasource:
+    url: jdbc:h2:mem:orderdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
+  # H2 Console (accessible at http://localhost:8081/h2-console)
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # ======================== Kafka ========================
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+# ======================== Eureka Client ========================
+# Registers this service with the Eureka discovery server so other
+# services can find it by name ("order-service").
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+
+# ======================== Feign Client ========================
+# Connects Feign to Resilience4j circuit breaker.
+spring.cloud.openfeign:
+  circuitbreaker:
+    enabled: true
+
+# ======================== Resilience4j Configuration ========================
+# Interview Tip:
+#   "Resilience4j is configured per named instance. The name 'orderService'
+#    matches the @CircuitBreaker(name='orderService') in OrderService.java.
+#    You can have different configs for different downstream services."
+resilience4j:
+
+  # ---- Circuit Breaker ----
+  # Monitors a sliding window of the last 10 calls.
+  # Opens when >= 50% fail. Stays open for 10s, then half-opens.
+  circuitbreaker:
+    instances:
+      orderService:
+        register-health-indicator: true
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 5
+        automatic-transition-from-open-to-half-open-enabled: true
+        # Which exceptions count as failures
+        record-exceptions:
+          - java.lang.Exception
+          - java.io.IOException
+          - java.util.concurrent.TimeoutException
+          - org.springframework.web.client.HttpServerErrorException
+          - feign.FeignException
+
+  # ---- Retry ----
+  # Retries up to 3 times with 1s between attempts.
+  retry:
+    instances:
+      orderService:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - java.lang.Exception
+          - java.io.IOException
+          - org.springframework.web.client.HttpServerErrorException
+          - feign.FeignException
+
+  # ---- Rate Limiter ----
+  # Limits to 20 calls per second with 500ms timeout.
+  ratelimiter:
+    instances:
+      orderService:
+        limit-for-period: 20
+        limit-refresh-period: 1s
+        timeout-duration: 500ms
+
+# ======================== Actuator ========================
+# Exposes circuit breaker health and metrics via /actuator endpoints.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers,metrics
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoint:
+    health:
+      show-details: always
+
+# ======================== Logging ========================
+logging:
+  level:
+    com.interview.microservices.order: DEBUG
+    io.github.resilience4j: DEBUG

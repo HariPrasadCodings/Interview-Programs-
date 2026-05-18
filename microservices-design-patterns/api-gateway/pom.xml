@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ================================================================
+         API GATEWAY MODULE
+         ================================================================
+         Spring Cloud Gateway (reactive) acting as the single entry point
+         for all client requests. Responsibilities:
+           - Route requests to downstream microservices via Eureka (lb://)
+           - Authenticate requests using JWT (custom GatewayFilter)
+           - Rate-limit with Redis (RequestRateLimiter)
+           - Circuit-break with Resilience4j
+           - Log request/response details (global filter)
+
+         Pattern: API Gateway Pattern
+         ================================================================ -->
+
+    <parent>
+        <groupId>com.interview.microservices</groupId>
+        <artifactId>microservices-design-patterns</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>api-gateway</artifactId>
+    <name>API Gateway</name>
+    <description>
+        Spring Cloud Gateway - single entry point for all microservices.
+        Handles routing, JWT authentication, rate limiting, and circuit breaking.
+    </description>
+
+    <dependencies>
+        <!-- ======================== Spring Cloud Gateway ======================== -->
+        <!-- Reactive gateway built on Spring WebFlux + Project Reactor.
+             NOTE: Do NOT add spring-boot-starter-web; Gateway is WebFlux-based. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+        </dependency>
+
+        <!-- ======================== Service Discovery ======================== -->
+        <!-- Eureka client - registers with discovery-server and resolves
+             lb:// URIs in route definitions to actual service instances. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- ======================== Actuator ======================== -->
+        <!-- Health checks, metrics, and gateway-specific endpoints
+             (e.g. /actuator/gateway/routes). -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- ======================== JWT (JJWT) ======================== -->
+        <!-- Token validation at the gateway layer so that downstream
+             services receive pre-validated user context via headers.
+             Split into api (compile), impl + jackson (runtime). -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ======================== Circuit Breaker ======================== -->
+        <!-- Reactor-aware Resilience4j integration for Spring Cloud Gateway.
+             Enables CircuitBreaker filter on individual routes. -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+        </dependency>
+
+        <!-- ======================== Redis Rate Limiter ======================== -->
+        <!-- Reactive Redis used by the built-in RequestRateLimiter
+             GatewayFilter for token-bucket rate limiting. -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

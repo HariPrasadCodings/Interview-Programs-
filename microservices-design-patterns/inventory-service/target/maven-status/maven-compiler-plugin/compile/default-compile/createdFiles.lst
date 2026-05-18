@@ -1,0 +1,11 @@
+com/interview/microservices/inventory/entity/Inventory.class
+com/interview/microservices/inventory/service/InventoryService.class
+com/interview/microservices/inventory/InventoryServiceApplication.class
+com/interview/microservices/inventory/controller/InventoryController$StockUpdateRequest.class
+com/interview/microservices/inventory/controller/InventoryController$ReservationRequest.class
+com/interview/microservices/inventory/entity/Inventory$InventoryBuilder.class
+com/interview/microservices/inventory/repository/InventoryRepository.class
+com/interview/microservices/inventory/config/KafkaConfig.class
+com/interview/microservices/inventory/event/InventoryEventPublisher.class
+com/interview/microservices/inventory/event/InventoryEventListener.class
+com/interview/microservices/inventory/controller/InventoryController.class

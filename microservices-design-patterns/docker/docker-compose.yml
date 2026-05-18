@@ -1,0 +1,208 @@
+# ================================================================
+# DOCKER COMPOSE - Microservices Infrastructure
+# ================================================================
+# Spins up all backing infrastructure services required by the
+# microservices ecosystem:
+#   - Zookeeper + Kafka  (async messaging / event streaming)
+#   - MySQL              (order-service relational store)
+#   - PostgreSQL         (payment-service relational store)
+#   - MongoDB            (product-service CQRS read model)
+#
+# Usage:
+#   docker compose up -d            # start all infrastructure
+#   docker compose down -v          # stop and remove volumes
+#   docker compose ps               # check running containers
+#   docker compose logs -f kafka    # tail logs for a service
+#
+# All services share a single bridge network (microservices-network)
+# so that containers can reach each other by service name.
+# ================================================================
+
+version: "3.9"
+
+services:
+
+  # ==============================================================
+  # ZOOKEEPER - Kafka coordination service
+  # ==============================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_SYNC_LIMIT: 2
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+    healthcheck:
+      test: ["CMD-SHELL", "echo ruok | nc localhost 2181 | grep imok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - microservices-network
+
+  # ==============================================================
+  # KAFKA - Event streaming / async messaging broker
+  # ==============================================================
+  # All microservices publish and consume domain events through
+  # Kafka (order-placed, payment-completed, stock-reserved, etc.).
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    hostname: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # Two listeners:
+      #   PLAINTEXT  - for inter-container communication (other Docker services)
+      #   HOST       - for host-machine access (IDE / local dev)
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,HOST://localhost:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_LOG_RETENTION_HOURS: 168
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    depends_on:
+      zookeeper:
+        condition: service_healthy
+    networks:
+      - microservices-network
+
+  # ==============================================================
+  # MYSQL 8.0 - Order Service database
+  # ==============================================================
+  # Stores orders, order items, and order status history.
+  # Demonstrates the "Database per Service" pattern: each
+  # microservice owns its own schema, accessed only by that service.
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    hostname: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-orderdb}
+      MYSQL_USER: ${MYSQL_USER:-orderuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-orderpass}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max-connections=200
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - microservices-network
+
+  # ==============================================================
+  # POSTGRESQL 16 - Payment Service database
+  # ==============================================================
+  # Stores payment transactions, refund records, and ledger entries.
+  # PostgreSQL is chosen here to showcase polyglot persistence
+  # alongside MySQL and MongoDB.
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-paymentdb}
+      POSTGRES_USER: ${POSTGRES_USER:-paymentuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-paymentpass}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paymentuser} -d ${POSTGRES_DB:-paymentdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - microservices-network
+
+  # ==============================================================
+  # MONGODB 7.0 - Product Service CQRS read model
+  # ==============================================================
+  # Stores the denormalized read-side projections for the product
+  # catalog (CQRS pattern). Write-side events published to Kafka
+  # are consumed and projected into MongoDB documents optimized
+  # for query performance.
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb
+    hostname: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-mongouser}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-mongopass}
+      MONGO_INITDB_DATABASE: ${MONGO_DATABASE:-productdb}
+    volumes:
+      - mongodb-data:/data/db
+      - mongodb-config:/data/configdb
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    networks:
+      - microservices-network
+
+# ================================================================
+# VOLUMES - Persistent storage for stateful services
+# ================================================================
+volumes:
+  zookeeper-data:
+    driver: local
+  zookeeper-log:
+    driver: local
+  kafka-data:
+    driver: local
+  mysql-data:
+    driver: local
+  postgres-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  mongodb-config:
+    driver: local
+
+# ================================================================
+# NETWORKS
+# ================================================================
+# All services share this bridge network so they can communicate
+# by container name (e.g., kafka:29092, mysql:3306).
+networks:
+  microservices-network:
+    driver: bridge
+    name: microservices-network

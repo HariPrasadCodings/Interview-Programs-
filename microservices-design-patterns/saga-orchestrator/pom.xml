@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ================================================================
+         SAGA ORCHESTRATOR
+         ================================================================
+         Demonstrates the Saga Pattern for distributed transactions:
+           - Orchestration: Central coordinator manages saga steps
+             sequentially and handles compensations on failure.
+           - Choreography: Event-driven approach where each service
+             publishes domain events and reacts to others via Kafka.
+         ================================================================ -->
+
+    <parent>
+        <groupId>com.interview.microservices</groupId>
+        <artifactId>microservices-design-patterns</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>saga-orchestrator</artifactId>
+    <name>Saga Orchestrator</name>
+    <description>
+        Saga pattern implementation demonstrating both orchestration-based
+        and choreography-based approaches for managing distributed
+        transactions across microservices.
+    </description>
+
+    <dependencies>
+        <!-- ==================== Spring Boot Starters ==================== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- ==================== Spring Cloud ==================== -->
+        <!-- Eureka Client - service registration & discovery -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <!-- OpenFeign - declarative REST client for orchestration steps -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <!-- ==================== Kafka ==================== -->
+        <!-- Used by choreography-based saga for event-driven communication -->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+        <!-- ==================== Database ==================== -->
+        <!-- H2 - in-memory database for saga instance tracking -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- ==================== Internal Shared Module ==================== -->
+        <dependency>
+            <groupId>com.interview.microservices</groupId>
+            <artifactId>common-dto</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

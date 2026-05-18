@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- ================================================================
+         CONFIG SERVER - Spring Cloud Config Server
+         ================================================================
+         Centralized configuration management for all microservices.
+         Uses the "native" profile to serve configuration files from
+         the classpath (config-repo directory) rather than a remote
+         Git repository.
+
+         Pattern: Cloud Config (Externalized Configuration)
+         - Single source of truth for all service configurations
+         - Environment-specific overrides via profiles
+         - Runtime configuration refresh without redeployment
+         ================================================================ -->
+
+    <parent>
+        <groupId>com.interview.microservices</groupId>
+        <artifactId>microservices-design-patterns</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>config-server</artifactId>
+    <name>Config Server</name>
+    <description>
+        Spring Cloud Config Server providing centralized configuration
+        management for all microservices in the e-commerce platform.
+    </description>
+
+    <dependencies>
+        <!-- Spring Cloud Config Server - serves configuration to clients -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-server</artifactId>
+        </dependency>
+
+        <!-- Actuator - health checks, metrics, and management endpoints -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

@@ -1,0 +1,74 @@
+# =============================================================================
+# Discovery Server (Eureka) Configuration
+# =============================================================================
+# This is the central service registry. All microservices register here
+# and discover each other through this server.
+
+server:
+  port: 8761                              # Standard Eureka port
+
+spring:
+  application:
+    name: discovery-server                # Name shown in logs & Eureka dashboard
+
+  # Basic auth credentials for the Eureka dashboard and API.
+  # Clients must include these in their serviceUrl if security is enforced:
+  #   eureka.client.serviceUrl.defaultZone=http://eureka:password@localhost:8761/eureka/
+  security:
+    user:
+      name: eureka
+      password: password
+
+# =============================================================================
+# Eureka Server Settings
+# =============================================================================
+eureka:
+  instance:
+    hostname: localhost                    # Hostname for this Eureka instance
+
+  client:
+    # This IS the registry server, so it should NOT register with itself
+    # or try to fetch a registry from a peer.
+    register-with-eureka: false
+    fetch-registry: false
+
+    # URL that clients use to connect to this Eureka server
+    service-url:
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@localhost:${server.port}/eureka/
+
+  server:
+    # ---- Development-friendly settings ----
+
+    # Wait time before the server starts evicting instances after startup.
+    # Set low for faster dev feedback (default is 5 min / 300000ms).
+    wait-time-in-ms-when-sync-empty: 5
+
+    # Self-preservation mode: when enabled, Eureka stops evicting instances
+    # if too many miss heartbeats (assumes network partition, not instance failure).
+    # Disabled in dev so stale instances are cleaned up quickly.
+    # IMPORTANT: Enable in production to prevent cascading failures!
+    enable-self-preservation: false
+
+    # How often (ms) the eviction task runs to remove expired instances.
+    # Default is 60000ms (60s); set lower in dev for faster cleanup.
+    eviction-interval-timer-in-ms: 5000
+
+# =============================================================================
+# Actuator / Management Endpoints
+# =============================================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics    # Expose useful endpoints
+  endpoint:
+    health:
+      show-details: always                # Show full health details
+
+# =============================================================================
+# Logging
+# =============================================================================
+logging:
+  level:
+    com.netflix.eureka: WARN              # Reduce Eureka noise in dev
+    com.netflix.discovery: WARN
