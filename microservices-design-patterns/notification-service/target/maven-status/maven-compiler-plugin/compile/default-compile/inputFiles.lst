@@ -1,8 +1,0 @@
-/home/hkathi/Desktop/Interview/microservices-design-patterns/notification-service/src/main/java/com/interview/microservices/notification/service/NotificationService.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/notification-service/src/main/java/com/interview/microservices/notification/event/OrderEventListener.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/notification-service/src/main/java/com/interview/microservices/notification/NotificationServiceApplication.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/notification-service/src/main/java/com/interview/microservices/notification/event/PaymentEventListener.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/notification-service/src/main/java/com/interview/microservices/notification/config/KafkaConsumerConfig.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/notification-service/src/main/java/com/interview/microservices/notification/controller/NotificationController.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/notification-service/src/main/java/com/interview/microservices/notification/repository/NotificationRepository.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/notification-service/src/main/java/com/interview/microservices/notification/entity/Notification.java

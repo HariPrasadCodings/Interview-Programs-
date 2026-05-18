@@ -1,5 +1,0 @@
-/home/hkathi/Desktop/Interview/microservices-design-patterns/api-gateway/src/main/java/com/interview/microservices/gateway/ApiGatewayApplication.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/api-gateway/src/main/java/com/interview/microservices/gateway/config/RateLimiterConfig.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/api-gateway/src/main/java/com/interview/microservices/gateway/filter/AuthenticationFilter.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/api-gateway/src/main/java/com/interview/microservices/gateway/filter/LoggingFilter.java
-/home/hkathi/Desktop/Interview/microservices-design-patterns/api-gateway/src/main/java/com/interview/microservices/gateway/util/JwtUtil.java
